@@ -16,7 +16,7 @@ resource "hcloud_network" "k3s" {
 resource "hcloud_network_subnet" "k3s" {
   network_id   = hcloud_network.k3s.id
   type         = "cloud"
-  network_zone = "eu-central"
+  network_zone = var.network_region
   ip_range     = "10.0.0.0/16"
 }
 
@@ -173,4 +173,14 @@ resource "local_file" "traefik_config" {
   filename             = "${path.module}/templates/rendered/traefik_config.yaml"
   file_permission      = "0644"
   directory_permission = "0755"
+}
+
+
+resource "hcloud_placement_group" "k3s_placement_group" {
+  name = "k3s-placement-group"
+  type = "spread"
+  labels = {
+    "provisioner" = "terraform",
+    "engine"      = "k3s"
+  }
 }
